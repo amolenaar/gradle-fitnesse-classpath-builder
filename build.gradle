@@ -1,0 +1,57 @@
+/*
+ * Example build file
+ */
+
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    fitnesse
+}
+
+dependencies {
+    fitnesse 'org.fitnesse:fitnesse:20140623'
+}
+
+task("writeFitNesseClasspath", type: WriteFitNesseClassPath) {
+  cpConfig = project.configurations.fitnesse
+
+  outputDir = project.file("FitNesseRoot/GradleClasspath")
+}
+
+project.tasks.getByName("clean").dependsOn("cleanWriteFitNesseClasspath")
+
+task("wiki", type: JavaExec) {
+  dependsOn writeFitNesseClasspath
+  //dependsOn compileJava
+  classpath configurations.fitnesse
+  main "fitnesseMain.FitNesseMain"
+  args "-p", "8000", "-e", "0"
+}
+
+/// === Task definitions
+
+class WriteFitNesseClassPath extends DefaultTask {
+  @Input
+  def cpConfig
+
+  @OutputDirectory
+  File outputDir
+
+  @TaskAction
+  def write() {
+    def contentTxt = project.file("${outputDir}/content.txt")
+    contentTxt.createNewFile()
+    contentTxt.withWriter { writer ->
+      writer.writeLine("!path ${project.sourceSets.main.output.classesDir}")
+      writer.writeLine("!path src/main/resources")
+      cpConfig.each { d ->
+        writer.writeLine("!path $d")
+      }
+    }
+  }
+}
+
