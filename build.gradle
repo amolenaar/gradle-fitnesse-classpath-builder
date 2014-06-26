@@ -5,50 +5,51 @@
 apply plugin: 'java'
 
 repositories {
-    mavenCentral()
+  mavenCentral()
 }
 
 configurations {
-    fitnesse
+  fitnesse
 }
 
 dependencies {
-    fitnesse 'org.fitnesse:fitnesse:20140623'
+  fitnesse 'org.fitnesse:fitnesse:20140623'
+  runtime 'org.fitnesse:fitnesse:20140623:standalone'
 }
 
-task("writeFitNesseClasspath", type: WriteFitNesseClassPath) {
-  cpConfig = project.configurations.fitnesse
+task("writeFitNesseClasspath", type: WriteFitNesseClasspath) {
+  classpath = project.configurations.fitnesse + configurations.runtime
 
-  outputDir = project.file("FitNesseRoot/GradleClasspath")
+  pagePath = project.file("FitNesseRoot/GradleClasspath")
 }
 
 project.tasks.getByName("clean").dependsOn("cleanWriteFitNesseClasspath")
 
 task("wiki", type: JavaExec) {
   dependsOn writeFitNesseClasspath
-  //dependsOn compileJava
+  dependsOn compileJava
   classpath configurations.fitnesse
   main "fitnesseMain.FitNesseMain"
   args "-p", "8000", "-e", "0"
 }
 
-/// === Task definitions
+/// === Custom Tasks
 
-class WriteFitNesseClassPath extends DefaultTask {
+class WriteFitNesseClasspath extends DefaultTask {
   @Input
-  def cpConfig
+  def classpath
 
   @OutputDirectory
-  File outputDir
+  File pagePath
 
   @TaskAction
-  def write() {
-    def contentTxt = project.file("${outputDir}/content.txt")
+  def generatePage() {
+    def contentTxt = project.file("${pagePath}/content.txt")
     contentTxt.createNewFile()
     contentTxt.withWriter { writer ->
       writer.writeLine("!path ${project.sourceSets.main.output.classesDir}")
       writer.writeLine("!path src/main/resources")
-      cpConfig.each { d ->
+      classpath.each { d ->
         writer.writeLine("!path $d")
       }
     }
