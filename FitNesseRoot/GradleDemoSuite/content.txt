@@ -1,3 +1,7 @@
+!1 Gradle demo suite
+
+This is an example suite that for the sake of demo-ability includes the FitNesse acceptance suite.
+
 !contents -R2 -g -p -f -h
 
 !include -c .GradleClasspath
