@@ -1,4 +1,4 @@
-# Simple class path generation for FitNesse
+# Gradle based classpath generation for FitNesse
 
 FitNesse is a well known tool for software acceptance testing. If you're using Gradle as your build tool of choice, it would be great to use Gradle to provide FitNesse a classpath for executing the acceptance tests. One way of doing so is to start FitNesse (preferable with a Gradle task) and use the [FitNesse Gradle classpath](http://github.com/kukido/fitnesse-gradle-classpath) plugin.
 
