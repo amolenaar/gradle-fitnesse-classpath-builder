@@ -1,14 +1,12 @@
 # Simple class path generation for FitNesse
 
-FitNesse is a well known tool for software acceptance testing. One of the harder things to do is execute your application from FitNesse. For this, at least in the case of Java/JVM applications, you'll need to tell FitNesse where the libraries and folders are that make up your application class path.
+FitNesse is a well known tool for software acceptance testing. If you're using Gradle as your build tool of choice, it would be great to use Gradle to provide FitNesse a classpath for executing the acceptance tests. One way of doing so is to start FitNesse (preferable with a Gradle task) and use the [FitNesse Gradle classpath](http://github.com/kukido/fitnesse-gradle-classpath) plugin.
 
-Since we're used to tools like Gradle, that do all the dependency resolution just fine, it's a hassle to keep dependencies up to date manually.
+In this blog I'll show another way to achieve the same result by generating a wiki page, which can be included in your test suite.
 
-The FitNesse wiki uses a simple file structure to store its page content. The directory name resembles the page name, the wiki markup is stored in a file named `content.txt` and metadata is stored in a file `properties.xml`.
+The FitNesse wiki uses a simple file structure to store its page content. The directory name resembles the page name, the wiki markup is stored in a file named `content.txt` and metadata is stored in a file `properties.xml`. The approach we take is that we create a new page with class path directives. There's no need to consider the properties file, since it has some sensible defaults. All the page will contain lines formatted like `!path some/archive.jar`.
 
-The approach we take is that we create a new page with class path directives. There's no need to consider the properties file, since it has some sensible defaults. All the page will contain lines formatted like `!path some/archive.jar`.
-
-In Groovy code this looks like:
+Let's start with the task:
 
 ```
 class WriteFitNesseClasspath extends DefaultTask {
@@ -60,6 +58,9 @@ At this point we have:
 1. A Gradle configuration that generates a FitNesse page
 2. A FitNesse page that does not do a thing...
 
-The final step is to include the GradleClasspath page in the (toplevel) suite containing your acceptance tests.
+The final step is to include the GradleClasspath page in the (toplevel) suite containing your acceptance tests. A simple `!include .GradleClasspath` should do the trick.
 
-A simple `!include .GradleClasspath` should do the trick.
+A similar task to the wiki task can be created to execute the FitNesse suite as part of the build process: just change the `args`.
+
+A working example can be found at https://github.com/amolenaar/gradle-fitnesse-classpath-builder.
+
